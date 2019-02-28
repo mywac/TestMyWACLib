@@ -46,7 +46,7 @@ public class BarcodeCaptureActivity extends AppCompatActivity implements Barcode
     private static final int RC_HANDLE_GMS = 9001;
 
     // permission request codes need to be < 256
-    private static final int RC_HANDLE_CAMERA_PERM = 2;
+    private static final int RC_HANDLE_CAMERA_PERM = 4;
 
     // constants used to pass extra data in the intent
     public static final String AutoFocus = "AutoFocus";
