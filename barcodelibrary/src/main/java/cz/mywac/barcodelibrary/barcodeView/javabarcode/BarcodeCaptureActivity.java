@@ -17,15 +17,18 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.Toast;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.CommonStatusCodes;
+
 import com.google.android.gms.vision.MultiProcessor;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
@@ -33,20 +36,24 @@ import cz.mywac.barcodelibrary.R;
 import cz.mywac.barcodelibrary.barcodeView.*;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Activity for the multi-tracker app.  This app detects barcodes and displays the value with the
  * rear facing camera. During detection overlay graphics are drawn to indicate the position,
  * size, and ID of each barcode.
  */
-public class BarcodeCaptureActivity extends AppCompatActivity implements BarcodeGraphicTracker.BarcodeUpdateListener {
+public final class BarcodeCaptureActivity extends AppCompatActivity implements BarcodeUpdateListener {
     private static final String TAG = "Barcode-reader";
 
     // intent request code to handle updating play services if needed.
     private static final int RC_HANDLE_GMS = 9001;
 
     // permission request codes need to be < 256
-    private static final int RC_HANDLE_CAMERA_PERM = 4;
+    private static final int RC_HANDLE_CAMERA_PERM = 2;
+
+    private Boolean isResult = false;
 
     // constants used to pass extra data in the intent
     public static final String AutoFocus = "AutoFocus";
@@ -88,11 +95,8 @@ public class BarcodeCaptureActivity extends AppCompatActivity implements Barcode
         gestureDetector = new GestureDetector(this, new CaptureGestureListener());
         scaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
 
-        Snackbar.make(mGraphicOverlay, "Tap to capture. Pinch/Stretch to zoom",
-                Snackbar.LENGTH_LONG)
-                .show();
-    }
 
+    }
     /**
      * Handles the requesting of the camera permission.  This includes
      * showing a "Snackbar" message of why the permission is needed then
@@ -152,7 +156,7 @@ public class BarcodeCaptureActivity extends AppCompatActivity implements Barcode
         // graphics for each barcode on screen.  The factory is used by the multi-processor to
         // create a separate tracker instance for each barcode.
         BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(context).build();
-        BarcodeTrackerFactory barcodeFactory = new BarcodeTrackerFactory(mGraphicOverlay, this);
+        BarcodeTrackerFactory barcodeFactory = new BarcodeTrackerFactory(mGraphicOverlay, this,this);
         barcodeDetector.setProcessor(
                 new MultiProcessor.Builder<>(barcodeFactory).build());
 
@@ -182,9 +186,13 @@ public class BarcodeCaptureActivity extends AppCompatActivity implements Barcode
         // Creates and starts the camera.  Note that this uses a higher resolution in comparison
         // to other detection examples to enable the barcode detector to detect small barcodes
         // at long distances.
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int width = displayMetrics.widthPixels;
+        int height = displayMetrics.heightPixels;
         CameraSource.Builder builder = new CameraSource.Builder(getApplicationContext(), barcodeDetector)
                 .setFacing(CameraSource.CAMERA_FACING_BACK)
-                .setRequestedPreviewSize(1600, 1024)
+                .setRequestedPreviewSize(width, height)
                 .setRequestedFps(15.0f);
 
         // make sure that auto focus is an available option
@@ -412,7 +420,18 @@ public class BarcodeCaptureActivity extends AppCompatActivity implements Barcode
     }
 
     @Override
-    public void onBarcodeDetected(Barcode barcode) {
-        //do something with barcode data returned
+    public void onBarcodeDetected(final Barcode barcode) {
+        if (!isResult) {
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    Intent result = new Intent();
+                    result.putExtra(BarcodeConstants.BARCODERESULT, barcode.rawValue);
+                    setResult(RESULT_OK, result);
+                    finish();
+                }
+            }, 1000);
+        }
+        isResult = true;
     }
 }

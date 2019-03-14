@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+
 import com.google.android.gms.vision.barcode.Barcode;
 
 /**
@@ -71,7 +72,6 @@ public class BarcodeGraphic extends GraphicOverlay.Graphic {
         if (barcode == null) {
             return;
         }
-
         // Draws the bounding box around the barcode.
         RectF rect = new RectF(barcode.getBoundingBox());
         rect.left = translateX(rect.left);

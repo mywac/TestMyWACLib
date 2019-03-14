@@ -8,16 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import cz.mywac.barcodescannerapi.javabarcode.BarcodeCaptureActivity
+import cz.mywac.barcodescannerapi.javabarcode.BarcodeConstants
 
 class MainFragment:Fragment(),View.OnClickListener {
     override fun onClick(v: View?) {
         if (v?.id == R.id.barcode_btn) {
-//            fragmentManager?.beginTransaction()?.
-//                replace(R.id.container,BarcodeFragnent())?.
-//                addToBackStack(null)?.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)?.
-//                commit()
             val intent = Intent(context,BarcodeCaptureActivity::class.java)
-            startActivity(intent)
+            activity?.startActivityForResult(intent,BarcodeConstants.BARCODE)
         }
     }
 

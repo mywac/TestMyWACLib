@@ -4,7 +4,7 @@ import com.google.android.gms.vision.Tracker;
 import com.google.android.gms.vision.barcode.Barcode;
 
 import android.content.Context;
-import android.support.annotation.UiThread;
+
 
 import com.google.android.gms.vision.Detector;
 
@@ -25,21 +25,15 @@ public class BarcodeGraphicTracker extends Tracker<Barcode> {
      * Consume the item instance detected from an Activity or Fragment level by implementing the
      * BarcodeUpdateListener interface method onBarcodeDetected.
      */
-    public interface BarcodeUpdateListener {
-        @UiThread
-        void onBarcodeDetected(Barcode barcode);
-    }
 
     BarcodeGraphicTracker(GraphicOverlay<BarcodeGraphic> mOverlay, BarcodeGraphic mGraphic,
-                          Context context) {
+                          Context context,BarcodeUpdateListener mBarcodeUpdateListener) {
         this.mOverlay = mOverlay;
         this.mGraphic = mGraphic;
-        if (context instanceof BarcodeUpdateListener) {
-            this.mBarcodeUpdateListener = (BarcodeUpdateListener) context;
-        } else {
-            throw new RuntimeException("Hosting activity must implement BarcodeUpdateListener");
-        }
+        this.mBarcodeUpdateListener = mBarcodeUpdateListener;
     }
+
+
 
     /**
      * Start tracking the detected item instance within the item overlay.

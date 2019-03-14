@@ -1,6 +1,7 @@
 package cz.mywac.barcodelibrary.barcodeView;
 
 import android.content.Context;
+
 import com.google.android.gms.vision.MultiProcessor;
 import com.google.android.gms.vision.Tracker;
 import com.google.android.gms.vision.barcode.Barcode;
@@ -12,16 +13,18 @@ import com.google.android.gms.vision.barcode.Barcode;
 public class BarcodeTrackerFactory implements MultiProcessor.Factory<Barcode> {
     private GraphicOverlay<BarcodeGraphic> mGraphicOverlay;
     private Context mContext;
+    private BarcodeUpdateListener mbarcodelistener;
 
     public BarcodeTrackerFactory(GraphicOverlay<BarcodeGraphic> mGraphicOverlay,
-                                 Context mContext) {
+                                 Context mContext,BarcodeUpdateListener listener) {
         this.mGraphicOverlay = mGraphicOverlay;
         this.mContext = mContext;
+        this.mbarcodelistener = listener;
     }
 
     @Override
     public Tracker<Barcode> create(Barcode barcode) {
         BarcodeGraphic graphic = new BarcodeGraphic(mGraphicOverlay);
-        return new BarcodeGraphicTracker(mGraphicOverlay, graphic, mContext);
+        return new BarcodeGraphicTracker(mGraphicOverlay, graphic, mContext,mbarcodelistener);
     }
 }
